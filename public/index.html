@@ -557,7 +557,7 @@ async function selectTrack(idx){
   if(track.cover){cover.src=track.cover;cover.style.display='block';}
   // Fetch audio url dari API
   try{
-    const d=await fetch('/.netlify/functions/musicproxy?query='+encodeURIComponent(track.query)).then(r=>r.json());
+    const d=await fetch('/.api/musicproxy?query='+encodeURIComponent(track.query)).then(r=>r.json());
     if(!d.status)throw new Error(d.message||'API error');
     const audioUrl=d.result?.download||'';
     const thumb=d.result?.thumbnail||track.cover||'';
