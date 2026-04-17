@@ -555,36 +555,25 @@ body{background:var(--bg);color:var(--text);font-family:var(--display);}
 </div>
 
 <script>
-// allorigins wrapper
+// Direct fetch - buat API yang udah CORS enabled
 async function apiFetch(url){
-  // Coba beberapa proxy, fallback kalau gagal
-  const proxies=[
-    u=>'https://corsproxy.io/?'+encodeURIComponent(u),
-    u=>'https://api.allorigins.win/get?url='+encodeURIComponent(u),
-  ];
-  for(const makeUrl of proxies){
-    try{
-      const r=await fetch(makeUrl(url));
-      if(!r.ok)continue;
-      const text=await r.text();
-      // allorigins wraps in {contents:...}
-      try{
-        const wrapped=JSON.parse(text);
-        if(wrapped.contents)return JSON.parse(wrapped.contents);
-        return wrapped;
-      }catch{
-        return JSON.parse(text);
-      }
-    }catch(e){continue;}
+  try{
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const text=await r.text();
+    return JSON.parse(text);
+  }catch(e){
+    throw new Error(e.message);
   }
-  throw new Error('Semua proxy gagal. Coba refresh.');
 }
 
 
 // MUSIC PLAYER — EDIT PLAYLIST DI SINI
 const mpPlaylist = [
-  {name:'untuk apa / untuk apa?', artist:'hindia', url:'https://o.uguu.se/nuHjprVE.mp3', cover:'https://o.uguu.se/OpDaWoPm.jpg'},
-  {name:'berdansalah karir ini tak ada artinya', artist:'hindia', url:'https://n.uguu.se/HYYaargq.mp3', cover:'https://d.uguu.se/QdPMprbE.jpg'},
+  // Format: {name:'Judul Lagu', artist:'Nama Artis', url:'https://link-mp3.mp3', cover:'https://link-cover.jpg'},
+  // Contoh:
+  // {name:'Rayakan Hari Ini', artist:'Hasta', url:'https://...mp3', cover:'https://...jpg'},
+  // Tambah lagu sebanyak yang lo mau
 ];
 
 let mpIdx = 0;
@@ -763,7 +752,7 @@ async function loadTV(channel){
   const el=document.getElementById('tv-content');
   el.innerHTML='<div class="loader"><div class="spin"></div><br/>Memuat jadwal '+channel+'...</div>';
   try{
-    const d=await apiFetch('https://api.siputzx.my.id/api/info/jadwaltv?channel='+channel);
+    const d=await apiFetch('/api/musicproxy?type=jadwaltv&channel='+channel);
     if(!d.status||!d.data?.length){el.innerHTML='<div class="loader"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>Data tidak tersedia.</div>';return;}
     el.innerHTML='<div class="tv-grid">'+d.data.map(item=>`
       <div class="tv-card">
@@ -781,7 +770,7 @@ async function loadBerita(){
   const el=document.getElementById('berita-content');
   el.innerHTML='<div class="loader"><div class="spin"></div><br/>Memuat berita...</div>';
   try{
-    const d=await apiFetch('https://api.botcahx.eu.org/api/news/cnbc?apikey=PA25Bupl');
+    const d=await apiFetch('/api/musicproxy?type=berita');
     if(!d.status||!d.data?.length){el.innerHTML='<div class="loader">Gagal memuat berita.</div>';return;}
     el.innerHTML='<div class="news-grid">'+d.data.map(item=>`
       <a href="${item.link||'#'}" target="_blank" class="news-card">
@@ -803,9 +792,7 @@ async function downloadTT(){
   document.getElementById('tt-loading').classList.add('show');
   document.getElementById('tt-result').classList.remove('show');
   try{
-    const d = await apiFetch(
-  'https://api.botcahx.eu.org/api/dowloader/tiktok?url='+encodeURIComponent(url)+'&apikey=PA25Bupl'
-);
+    const d=await apiFetch('/api/musicproxy?type=tiktok&url='+encodeURIComponent(url));
     document.getElementById('tt-loading').classList.remove('show');
     if(!d.status||!d.data){document.getElementById('tt-loading').textContent='Gagal: '+JSON.stringify(d);document.getElementById('tt-loading').classList.add('show');return;}
     const data=d.data;
