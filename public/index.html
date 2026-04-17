@@ -781,7 +781,7 @@ async function loadBerita(){
   const el=document.getElementById('berita-content');
   el.innerHTML='<div class="loader"><div class="spin"></div><br/>Memuat berita...</div>';
   try{
-    const d=await apiFetch('https://api.siputzx.my.id/api/berita/cnbcindonesia');
+    const d=await apiFetch('https://api.botcahx.eu.org/api/news/cnbc?apikey=PA25Bupl');
     if(!d.status||!d.data?.length){el.innerHTML='<div class="loader">Gagal memuat berita.</div>';return;}
     el.innerHTML='<div class="news-grid">'+d.data.map(item=>`
       <a href="${item.link||'#'}" target="_blank" class="news-card">
@@ -803,7 +803,9 @@ async function downloadTT(){
   document.getElementById('tt-loading').classList.add('show');
   document.getElementById('tt-result').classList.remove('show');
   try{
-    const d=await apiFetch('https://api.siputzx.my.id/api/d/tiktok/v2?url='+encodeURIComponent(url));
+    const d = await apiFetch(
+  'https://api.botcahx.eu.org/api/dowloader/tiktok?url='+encodeURIComponent(url)+'&apikey=PA25Bupl'
+);
     document.getElementById('tt-loading').classList.remove('show');
     if(!d.status||!d.data){document.getElementById('tt-loading').textContent='Gagal: '+JSON.stringify(d);document.getElementById('tt-loading').classList.add('show');return;}
     const data=d.data;
